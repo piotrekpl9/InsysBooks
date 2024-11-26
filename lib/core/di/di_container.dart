@@ -5,8 +5,8 @@ import 'package:insys_books/modules/book/book_di.dart';
 class DiContainer {
   static final GetIt _getIt = GetIt.instance;
 
-  static void init() {
-    setupCoreDependencyInjection(_getIt);
+  static Future init() async {
+    await setupCoreDependencyInjection(_getIt);
     setupBookDependencyInjection(_getIt);
   }
 

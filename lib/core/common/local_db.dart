@@ -5,10 +5,13 @@ import 'package:path_provider/path_provider.dart';
 class LocalDb {
   late Isar isar;
 
-  Future<void> init() async {
+  Future init() async {
     final dir = await getApplicationDocumentsDirectory();
-    isar = await Isar.open([
-      BookDbEntitySchema,
-    ], directory: dir.path);
+    isar = await Isar.open(
+      [
+        BookDbEntitySchema,
+      ],
+      directory: dir.path,
+    );
   }
 }

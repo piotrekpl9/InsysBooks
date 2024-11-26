@@ -9,14 +9,37 @@ class BookWebApiDao implements AbstractBookWebApiDao {
   BookWebApiDao({required HttpClient httpClient}) : _httpClient = httpClient;
 
   @override
-  Future<List<Book>> getBooksByName(String name) async {
-    var response =
-        await _httpClient.dio.get("/search.json?q=python+programming");
+  Future<Book?> getBooksByName(String name) async {
+    var response = await _httpClient.dio
+        .get("/volumes?q=$name&key=${_httpClient.googleApiKey}");
     if (response.statusCode == 200) {
-      final data = response.data as List<dynamic>;
-      final books = data.map((item) => Book.fromJson(item)).toList();
-      return books;
+      //TODO czy brać tylko pierwszy element?
+      final data = response.data["items"]?[0];
+      // if (data is List) {
+      //   final books = data.where((element) => element != null).map((item) {
+      //     try {
+      //       return Book.fromJson(item as Map<String, dynamic>);
+      //     } catch (error) {
+      //       //TODO add loggs
+      //       return null;
+      //     }
+      //   });
+
+      //   return books.nonNulls.toList();
+      // } else {
+      //   //TODO add loggs
+      //   return [];
+      // }
+      try {
+        return Book.fromJson(data as Map<String, dynamic>);
+      } catch (error) {
+        //TODO add loggs
+        return null;
+      }
+    } else {
+      //TODO add loggs
+
+      return null;
     }
-    return [];
   }
 }

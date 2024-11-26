@@ -9,7 +9,12 @@ class BookQueryService implements AbstractBookQueryService {
       : _bookRepository = bookRepository;
 
   @override
-  Future<List<Book>> getBooksByName(String name) async {
-    return await _bookRepository.getBooksByName(name);
+  Future<Book?> getBookByName(String name) async {
+    return await _bookRepository.getBookByName(name);
+  }
+
+  @override
+  Future<List<Book>> getAllLocalBooks() async {
+    return await _bookRepository.getAllLocalBooks();
   }
 }

@@ -22,14 +22,14 @@ const BookDbEntitySchema = CollectionSchema(
       name: r'authorFullName',
       type: IsarType.string,
     ),
-    r'imagePath': PropertySchema(
+    r'id': PropertySchema(
       id: 1,
-      name: r'imagePath',
+      name: r'id',
       type: IsarType.string,
     ),
-    r'key': PropertySchema(
+    r'imagePath': PropertySchema(
       id: 2,
-      name: r'key',
+      name: r'imagePath',
       type: IsarType.string,
     ),
     r'name': PropertySchema(
@@ -47,16 +47,16 @@ const BookDbEntitySchema = CollectionSchema(
   serialize: _bookDbEntitySerialize,
   deserialize: _bookDbEntityDeserialize,
   deserializeProp: _bookDbEntityDeserializeProp,
-  idName: r'id',
+  idName: r'isarId',
   indexes: {
-    r'key': IndexSchema(
-      id: -4906094122524121629,
-      name: r'key',
+    r'id': IndexSchema(
+      id: -3268401673993471357,
+      name: r'id',
       unique: true,
       replace: false,
       properties: [
         IndexPropertySchema(
-          name: r'key',
+          name: r'id',
           type: IndexType.hash,
           caseSensitive: true,
         )
@@ -78,8 +78,13 @@ int _bookDbEntityEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.authorFullName.length * 3;
-  bytesCount += 3 + object.imagePath.length * 3;
-  bytesCount += 3 + object.isbn.length * 3;
+  bytesCount += 3 + object.id.length * 3;
+  {
+    final value = object.imagePath;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.name.length * 3;
   return bytesCount;
 }
@@ -91,8 +96,8 @@ void _bookDbEntitySerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeString(offsets[0], object.authorFullName);
-  writer.writeString(offsets[1], object.imagePath);
-  writer.writeString(offsets[2], object.isbn);
+  writer.writeString(offsets[1], object.id);
+  writer.writeString(offsets[2], object.imagePath);
   writer.writeString(offsets[3], object.name);
   writer.writeDateTime(offsets[4], object.releaseDate);
 }
@@ -105,11 +110,10 @@ BookDbEntity _bookDbEntityDeserialize(
 ) {
   final object = BookDbEntity(
     authorFullName: reader.readString(offsets[0]),
-    id: id,
-    imagePath: reader.readString(offsets[1]),
-    isbn: reader.readString(offsets[2]),
+    id: reader.readString(offsets[1]),
+    imagePath: reader.readStringOrNull(offsets[2]),
     name: reader.readString(offsets[3]),
-    releaseDate: reader.readDateTime(offsets[4]),
+    releaseDate: reader.readDateTimeOrNull(offsets[4]),
   );
   return object;
 }
@@ -126,18 +130,18 @@ P _bookDbEntityDeserializeProp<P>(
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 3:
       return (reader.readString(offset)) as P;
     case 4:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
 
 Id _bookDbEntityGetId(BookDbEntity object) {
-  return object.id;
+  return object.isarId;
 }
 
 List<IsarLinkBase<dynamic>> _bookDbEntityGetLinks(BookDbEntity object) {
@@ -145,68 +149,65 @@ List<IsarLinkBase<dynamic>> _bookDbEntityGetLinks(BookDbEntity object) {
 }
 
 void _bookDbEntityAttach(
-    IsarCollection<dynamic> col, Id id, BookDbEntity object) {
-  object.id = id;
-}
+    IsarCollection<dynamic> col, Id id, BookDbEntity object) {}
 
 extension BookDbEntityByIndex on IsarCollection<BookDbEntity> {
-  Future<BookDbEntity?> getByKey(String key) {
-    return getByIndex(r'key', [key]);
+  Future<BookDbEntity?> getById(String id) {
+    return getByIndex(r'id', [id]);
   }
 
-  BookDbEntity? getByKeySync(String key) {
-    return getByIndexSync(r'key', [key]);
+  BookDbEntity? getByIdSync(String id) {
+    return getByIndexSync(r'id', [id]);
   }
 
-  Future<bool> deleteByKey(String key) {
-    return deleteByIndex(r'key', [key]);
+  Future<bool> deleteById(String id) {
+    return deleteByIndex(r'id', [id]);
   }
 
-  bool deleteByKeySync(String key) {
-    return deleteByIndexSync(r'key', [key]);
+  bool deleteByIdSync(String id) {
+    return deleteByIndexSync(r'id', [id]);
   }
 
-  Future<List<BookDbEntity?>> getAllByKey(List<String> keyValues) {
-    final values = keyValues.map((e) => [e]).toList();
-    return getAllByIndex(r'key', values);
+  Future<List<BookDbEntity?>> getAllById(List<String> idValues) {
+    final values = idValues.map((e) => [e]).toList();
+    return getAllByIndex(r'id', values);
   }
 
-  List<BookDbEntity?> getAllByKeySync(List<String> keyValues) {
-    final values = keyValues.map((e) => [e]).toList();
-    return getAllByIndexSync(r'key', values);
+  List<BookDbEntity?> getAllByIdSync(List<String> idValues) {
+    final values = idValues.map((e) => [e]).toList();
+    return getAllByIndexSync(r'id', values);
   }
 
-  Future<int> deleteAllByKey(List<String> keyValues) {
-    final values = keyValues.map((e) => [e]).toList();
-    return deleteAllByIndex(r'key', values);
+  Future<int> deleteAllById(List<String> idValues) {
+    final values = idValues.map((e) => [e]).toList();
+    return deleteAllByIndex(r'id', values);
   }
 
-  int deleteAllByKeySync(List<String> keyValues) {
-    final values = keyValues.map((e) => [e]).toList();
-    return deleteAllByIndexSync(r'key', values);
+  int deleteAllByIdSync(List<String> idValues) {
+    final values = idValues.map((e) => [e]).toList();
+    return deleteAllByIndexSync(r'id', values);
   }
 
-  Future<Id> putByKey(BookDbEntity object) {
-    return putByIndex(r'key', object);
+  Future<Id> putById(BookDbEntity object) {
+    return putByIndex(r'id', object);
   }
 
-  Id putByKeySync(BookDbEntity object, {bool saveLinks = true}) {
-    return putByIndexSync(r'key', object, saveLinks: saveLinks);
+  Id putByIdSync(BookDbEntity object, {bool saveLinks = true}) {
+    return putByIndexSync(r'id', object, saveLinks: saveLinks);
   }
 
-  Future<List<Id>> putAllByKey(List<BookDbEntity> objects) {
-    return putAllByIndex(r'key', objects);
+  Future<List<Id>> putAllById(List<BookDbEntity> objects) {
+    return putAllByIndex(r'id', objects);
   }
 
-  List<Id> putAllByKeySync(List<BookDbEntity> objects,
-      {bool saveLinks = true}) {
-    return putAllByIndexSync(r'key', objects, saveLinks: saveLinks);
+  List<Id> putAllByIdSync(List<BookDbEntity> objects, {bool saveLinks = true}) {
+    return putAllByIndexSync(r'id', objects, saveLinks: saveLinks);
   }
 }
 
 extension BookDbEntityQueryWhereSort
     on QueryBuilder<BookDbEntity, BookDbEntity, QWhere> {
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterWhere> anyId() {
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterWhere> anyIsarId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
     });
@@ -215,112 +216,114 @@ extension BookDbEntityQueryWhereSort
 
 extension BookDbEntityQueryWhere
     on QueryBuilder<BookDbEntity, BookDbEntity, QWhereClause> {
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterWhereClause> idEqualTo(Id id) {
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterWhereClause> isarIdEqualTo(
+      Id isarId) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
-        lower: id,
-        upper: id,
+        lower: isarId,
+        upper: isarId,
       ));
     });
   }
 
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterWhereClause> idNotEqualTo(
-      Id id) {
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterWhereClause> isarIdNotEqualTo(
+      Id isarId) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
             .addWhereClause(
-              IdWhereClause.lessThan(upper: id, includeUpper: false),
+              IdWhereClause.lessThan(upper: isarId, includeUpper: false),
             )
             .addWhereClause(
-              IdWhereClause.greaterThan(lower: id, includeLower: false),
+              IdWhereClause.greaterThan(lower: isarId, includeLower: false),
             );
       } else {
         return query
             .addWhereClause(
-              IdWhereClause.greaterThan(lower: id, includeLower: false),
+              IdWhereClause.greaterThan(lower: isarId, includeLower: false),
             )
             .addWhereClause(
-              IdWhereClause.lessThan(upper: id, includeUpper: false),
+              IdWhereClause.lessThan(upper: isarId, includeUpper: false),
             );
       }
     });
   }
 
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterWhereClause> idGreaterThan(
-      Id id,
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterWhereClause> isarIdGreaterThan(
+      Id isarId,
       {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
-        IdWhereClause.greaterThan(lower: id, includeLower: include),
+        IdWhereClause.greaterThan(lower: isarId, includeLower: include),
       );
     });
   }
 
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterWhereClause> idLessThan(Id id,
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterWhereClause> isarIdLessThan(
+      Id isarId,
       {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
-        IdWhereClause.lessThan(upper: id, includeUpper: include),
+        IdWhereClause.lessThan(upper: isarId, includeUpper: include),
       );
     });
   }
 
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterWhereClause> idBetween(
-    Id lowerId,
-    Id upperId, {
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterWhereClause> isarIdBetween(
+    Id lowerIsarId,
+    Id upperIsarId, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
-        lower: lowerId,
+        lower: lowerIsarId,
         includeLower: includeLower,
-        upper: upperId,
+        upper: upperIsarId,
         includeUpper: includeUpper,
       ));
     });
   }
 
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterWhereClause> keyEqualTo(
-      String key) {
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterWhereClause> idEqualTo(
+      String id) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'key',
-        value: [key],
+        indexName: r'id',
+        value: [id],
       ));
     });
   }
 
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterWhereClause> keyNotEqualTo(
-      String key) {
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterWhereClause> idNotEqualTo(
+      String id) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'key',
+              indexName: r'id',
               lower: [],
-              upper: [key],
+              upper: [id],
               includeUpper: false,
             ))
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'key',
-              lower: [key],
+              indexName: r'id',
+              lower: [id],
               includeLower: false,
               upper: [],
             ));
       } else {
         return query
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'key',
-              lower: [key],
+              indexName: r'id',
+              lower: [id],
               includeLower: false,
               upper: [],
             ))
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'key',
+              indexName: r'id',
               lower: [],
-              upper: [key],
+              upper: [id],
               includeUpper: false,
             ));
       }
@@ -467,46 +470,54 @@ extension BookDbEntityQueryFilter
   }
 
   QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> idEqualTo(
-      Id value) {
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'id',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> idGreaterThan(
-    Id value, {
+    String value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
         property: r'id',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> idLessThan(
-    Id value, {
+    String value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
         property: r'id',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> idBetween(
-    Id lower,
-    Id upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
@@ -515,13 +526,101 @@ extension BookDbEntityQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> idStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'id',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> idEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'id',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> idContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'id',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> idMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'id',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> idIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'id',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition>
+      idIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'id',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition>
+      imagePathIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'imagePath',
+      ));
+    });
+  }
+
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition>
+      imagePathIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'imagePath',
       ));
     });
   }
 
   QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition>
       imagePathEqualTo(
-    String value, {
+    String? value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -535,7 +634,7 @@ extension BookDbEntityQueryFilter
 
   QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition>
       imagePathGreaterThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -551,7 +650,7 @@ extension BookDbEntityQueryFilter
 
   QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition>
       imagePathLessThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -567,8 +666,8 @@ extension BookDbEntityQueryFilter
 
   QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition>
       imagePathBetween(
-    String lower,
-    String upper, {
+    String? lower,
+    String? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -655,134 +754,57 @@ extension BookDbEntityQueryFilter
     });
   }
 
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> keyEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> isarIdEqualTo(
+      Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'key',
+        property: r'isarId',
         value: value,
-        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition>
-      keyGreaterThan(
-    String value, {
+      isarIdGreaterThan(
+    Id value, {
     bool include = false,
-    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'key',
+        property: r'isarId',
         value: value,
-        caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> keyLessThan(
-    String value, {
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition>
+      isarIdLessThan(
+    Id value, {
     bool include = false,
-    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'key',
+        property: r'isarId',
         value: value,
-        caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> keyBetween(
-    String lower,
-    String upper, {
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> isarIdBetween(
+    Id lower,
+    Id upper, {
     bool includeLower = true,
     bool includeUpper = true,
-    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'key',
+        property: r'isarId',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> keyStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'key',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> keyEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'key',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> keyContains(
-      String value,
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'key',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> keyMatches(
-      String pattern,
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'key',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> keyIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'key',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition>
-      keyIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'key',
-        value: '',
       ));
     });
   }
@@ -922,7 +944,25 @@ extension BookDbEntityQueryFilter
   }
 
   QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition>
-      releaseDateEqualTo(DateTime value) {
+      releaseDateIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'releaseDate',
+      ));
+    });
+  }
+
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition>
+      releaseDateIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'releaseDate',
+      ));
+    });
+  }
+
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition>
+      releaseDateEqualTo(DateTime? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'releaseDate',
@@ -933,7 +973,7 @@ extension BookDbEntityQueryFilter
 
   QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition>
       releaseDateGreaterThan(
-    DateTime value, {
+    DateTime? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -947,7 +987,7 @@ extension BookDbEntityQueryFilter
 
   QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition>
       releaseDateLessThan(
-    DateTime value, {
+    DateTime? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -961,8 +1001,8 @@ extension BookDbEntityQueryFilter
 
   QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition>
       releaseDateBetween(
-    DateTime lower,
-    DateTime upper, {
+    DateTime? lower,
+    DateTime? upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
@@ -1000,6 +1040,18 @@ extension BookDbEntityQuerySortBy
     });
   }
 
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterSortBy> sortById() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'id', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterSortBy> sortByIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
   QueryBuilder<BookDbEntity, BookDbEntity, QAfterSortBy> sortByImagePath() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'imagePath', Sort.asc);
@@ -1009,18 +1061,6 @@ extension BookDbEntityQuerySortBy
   QueryBuilder<BookDbEntity, BookDbEntity, QAfterSortBy> sortByImagePathDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'imagePath', Sort.desc);
-    });
-  }
-
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterSortBy> sortByKey() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'key', Sort.asc);
-    });
-  }
-
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterSortBy> sortByKeyDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'key', Sort.desc);
     });
   }
 
@@ -1090,15 +1130,15 @@ extension BookDbEntityQuerySortThenBy
     });
   }
 
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterSortBy> thenByKey() {
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterSortBy> thenByIsarId() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'key', Sort.asc);
+      return query.addSortBy(r'isarId', Sort.asc);
     });
   }
 
-  QueryBuilder<BookDbEntity, BookDbEntity, QAfterSortBy> thenByKeyDesc() {
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterSortBy> thenByIsarIdDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'key', Sort.desc);
+      return query.addSortBy(r'isarId', Sort.desc);
     });
   }
 
@@ -1138,17 +1178,17 @@ extension BookDbEntityQueryWhereDistinct
     });
   }
 
+  QueryBuilder<BookDbEntity, BookDbEntity, QDistinct> distinctById(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'id', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<BookDbEntity, BookDbEntity, QDistinct> distinctByImagePath(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'imagePath', caseSensitive: caseSensitive);
-    });
-  }
-
-  QueryBuilder<BookDbEntity, BookDbEntity, QDistinct> distinctByKey(
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'key', caseSensitive: caseSensitive);
     });
   }
 
@@ -1168,9 +1208,9 @@ extension BookDbEntityQueryWhereDistinct
 
 extension BookDbEntityQueryProperty
     on QueryBuilder<BookDbEntity, BookDbEntity, QQueryProperty> {
-  QueryBuilder<BookDbEntity, int, QQueryOperations> idProperty() {
+  QueryBuilder<BookDbEntity, int, QQueryOperations> isarIdProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'id');
+      return query.addPropertyName(r'isarId');
     });
   }
 
@@ -1181,15 +1221,15 @@ extension BookDbEntityQueryProperty
     });
   }
 
-  QueryBuilder<BookDbEntity, String, QQueryOperations> imagePathProperty() {
+  QueryBuilder<BookDbEntity, String, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'imagePath');
+      return query.addPropertyName(r'id');
     });
   }
 
-  QueryBuilder<BookDbEntity, String, QQueryOperations> keyProperty() {
+  QueryBuilder<BookDbEntity, String?, QQueryOperations> imagePathProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'key');
+      return query.addPropertyName(r'imagePath');
     });
   }
 
@@ -1199,7 +1239,8 @@ extension BookDbEntityQueryProperty
     });
   }
 
-  QueryBuilder<BookDbEntity, DateTime, QQueryOperations> releaseDateProperty() {
+  QueryBuilder<BookDbEntity, DateTime?, QQueryOperations>
+      releaseDateProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'releaseDate');
     });
