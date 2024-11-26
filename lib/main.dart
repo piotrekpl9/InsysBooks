@@ -4,6 +4,7 @@ import 'package:insys_books/core/di/di_container.dart';
 import 'package:insys_books/modules/book/presentation/screens/home_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   DiContainer.init();
   runApp(const MyApp());
 }
