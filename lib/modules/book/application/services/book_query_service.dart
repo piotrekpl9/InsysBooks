@@ -1,5 +1,5 @@
-import 'package:insys_books/modules/book/application/abstract_book_repository.dart';
-import 'package:insys_books/modules/book/application/services/abstract_book_query_service.dart';
+import 'package:insys_books/modules/book/application/repository/abstract_book_repository.dart';
+import 'package:insys_books/modules/book/application/services/abstraction/abstract_book_query_service.dart';
 import 'package:insys_books/modules/book/domain/book.dart';
 
 class BookQueryService implements AbstractBookQueryService {
@@ -9,12 +9,18 @@ class BookQueryService implements AbstractBookQueryService {
       : _bookRepository = bookRepository;
 
   @override
-  Future<Book?> getBookByName(String name) async {
-    return await _bookRepository.getBookByName(name);
+  Future<List<Book>> getBooksByName(String name) async {
+    //TODO moze ustawiać deleted = false kiedy pobieramy ksiąki po nazwie????
+    return await _bookRepository.getBooksByName(name);
   }
 
   @override
-  Future<List<Book>> getAllLocalBooks() async {
-    return await _bookRepository.getAllLocalBooks();
+  Future<List<Book>> getAllBooks({int? limit}) async {
+    return await _bookRepository.getAllBooks(limit: limit);
+  }
+
+  @override
+  Future<Book?> getBookById(String id) async {
+    return await _bookRepository.getBookById(id);
   }
 }

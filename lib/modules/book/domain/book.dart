@@ -1,40 +1,46 @@
-class Book {
+import 'package:equatable/equatable.dart';
+
+class Book extends Equatable {
   final String id;
-  final String name;
+  final String title;
   final String authorName;
-  final DateTime? releaseDate;
+  final int? publicationYear;
   final String? imagePath;
 
-  Book({
+  const Book({
     required this.id,
-    required this.name,
+    required this.title,
     required this.authorName,
-    required this.releaseDate,
+    required this.publicationYear,
     required this.imagePath,
   });
 
   factory Book.fromJson(Map<String, dynamic> json) {
     var volumeInfo = json['volumeInfo'];
     var publishedDateField = volumeInfo['publishedDate'];
-    DateTime? fullDate;
+    int? date;
     if (publishedDateField != null) {
-      fullDate = DateTime.tryParse(publishedDateField);
-      if (fullDate == null) {
+      date = DateTime.tryParse(publishedDateField)?.year;
+      if (date == null) {
         int? year = int.tryParse(volumeInfo['publishedDate']);
         if (year != null) {
-          fullDate = DateTime(year);
+          date = year;
         }
       }
     }
 
     return Book(
       id: json['id'] as String,
-      name: volumeInfo["title"] as String,
+      title: volumeInfo["title"] as String,
       authorName: volumeInfo['authors']?.isNotEmpty == true
           ? volumeInfo['authors']![0] as String
           : 'Unknown Author',
-      releaseDate: fullDate,
+      publicationYear: date,
       imagePath: volumeInfo["imageLinks"]?["thumbnail"] ?? "",
     );
   }
+
+  @override
+  List<Object?> get props =>
+      [id, title, authorName, publicationYear, imagePath];
 }

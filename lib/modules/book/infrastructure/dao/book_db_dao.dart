@@ -1,8 +1,6 @@
-import 'package:insys_books/core/common/local_db.dart';
-import 'package:insys_books/modules/book/domain/book.dart';
-import 'package:insys_books/modules/book/infrastructure/dao/abstract_book_db_dao.dart';
+import 'package:insys_books/core/infrastructure/local_db.dart';
+import 'package:insys_books/modules/book/infrastructure/dao/abstraction/abstract_book_db_dao.dart';
 import 'package:insys_books/modules/book/infrastructure/model/book_db_entity.dart';
-import 'package:insys_books/modules/book/infrastructure/utils/book_entity_mapper.dart';
 import 'package:isar/isar.dart';
 
 class BookDbDao implements AbstractBookDbDao {
@@ -12,10 +10,9 @@ class BookDbDao implements AbstractBookDbDao {
 
   @override
   Future<bool> bookExistsByName(String bookName) async {
-    //TODO tu cięzki przypadek, przykład harry potter
     return await _localDb.isar.bookDbEntitys
             .filter()
-            .nameMatches('*$bookName*', caseSensitive: false)
+            .titleMatches('*$bookName*', caseSensitive: false)
             .count() >
         0;
   }
@@ -30,24 +27,73 @@ class BookDbDao implements AbstractBookDbDao {
   }
 
   @override
-  Future<Book?> getBookByName(String bookName) async {
-    var res = (await _localDb.isar.bookDbEntitys
+  Future<List<BookDbEntity>> getBooksByName(String bookName) async {
+    return await _localDb.isar.bookDbEntitys
         .filter()
-        .nameMatches(bookName, caseSensitive: false)
-        .findFirst());
-    return res != null ? BookEntityMapper.fromDbEntity(res) : null;
+        .titleMatches('*$bookName*', caseSensitive: false)
+        .findAll();
   }
 
   @override
-  Future<void> insertOrUpdateBook(Book book) async {
+  Future<void> insertOrUpdateBook(BookDbEntity book) async {
     await _localDb.isar.writeTxn(() async {
-      await _localDb.isar.bookDbEntitys.put(BookEntityMapper.toDbEntity(book));
+      await _localDb.isar.bookDbEntitys.put(book);
     });
   }
 
   @override
-  Future<List<Book>> getAllLocalBooks() async {
-    var res = (await _localDb.isar.bookDbEntitys.where().findAll());
-    return res.map((e) => BookEntityMapper.fromDbEntity(e)).toList();
+  Future<void> updateBook(BookDbEntity book) async {
+    await _localDb.isar.writeTxn(() async {
+      await _localDb.isar.bookDbEntitys.putById(book);
+    });
+  }
+
+  @override
+  Future<List<BookDbEntity>> getAllBooks({int? limit}) async {
+    var query = _localDb.isar.bookDbEntitys.where();
+    if (limit != null) {
+      return (await query.limit(limit).findAll()).toList();
+    }
+    return (await query.findAll()).toList();
+  }
+
+  @override
+  Future<void> insertList(List<BookDbEntity> books) async {
+    try {
+      await _localDb.isar.writeTxn(() async {
+        await _localDb.isar.bookDbEntitys.putAllById(books);
+      });
+    } catch (e) {
+      //TODO poprawić
+      var x = 2;
+    }
+  }
+
+  @override
+  Future<BookDbEntity?> getBookById(String id) async {
+    return await _localDb.isar.bookDbEntitys.filter().idEqualTo(id).findFirst();
+  }
+
+  @override
+  Future<List<BookDbEntity>> getAllBooksByIds(List<String> ids) async {
+    return (await _localDb.isar.bookDbEntitys.getAllById(ids))
+        .nonNulls
+        .toList();
+  }
+
+  @override
+  Future<void> deleteById(String id) async {
+    try {
+      var book = await getBookById(id);
+      if (book == null) {
+        return;
+      }
+      book.deleted = true;
+      await _localDb.isar.writeTxn(() async {
+        await _localDb.isar.bookDbEntitys.putById(book);
+      });
+    } catch (e) {
+      var x = 2;
+    }
   }
 }

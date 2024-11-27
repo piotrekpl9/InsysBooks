@@ -1,10 +1,10 @@
 class UpdateBookDto {
-  final String name;
+  final String title;
   final String authorName;
-  final DateTime? releaseDate;
+  final int publicationYear;
 
   UpdateBookDto(
-      {required this.name,
+      {required this.title,
       required this.authorName,
-      required this.releaseDate});
+      required this.publicationYear});
 }

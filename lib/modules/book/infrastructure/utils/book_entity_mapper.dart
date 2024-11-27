@@ -5,20 +5,20 @@ class BookEntityMapper {
   static Book fromDbEntity(BookDbEntity entity) {
     return Book(
       id: entity.id,
-      name: entity.name,
+      title: entity.title,
       authorName: entity.authorFullName,
-      releaseDate: entity.releaseDate,
+      publicationYear: entity.publicationYear,
       imagePath: entity.imagePath,
     );
   }
 
-  static BookDbEntity toDbEntity(Book book) {
+  static BookDbEntity toDbEntity(Book book, {bool? deleted}) {
     return BookDbEntity(
-      id: book.id,
-      name: book.name,
-      authorFullName: book.authorName,
-      releaseDate: book.releaseDate,
-      imagePath: book.imagePath,
-    );
+        id: book.id,
+        title: book.title,
+        authorFullName: book.authorName,
+        publicationYear: book.publicationYear,
+        imagePath: book.imagePath,
+        deleted: deleted ?? false);
   }
 }

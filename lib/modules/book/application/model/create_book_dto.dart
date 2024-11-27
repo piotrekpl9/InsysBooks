@@ -1,10 +1,12 @@
 class CreateBookDto {
-  final String name;
+  final String id;
+  final String title;
   final String authorName;
-  final DateTime? releaseDate;
+  final int publicationDate;
 
   CreateBookDto(
-      {required this.name,
+      {required this.title,
+      required this.id,
       required this.authorName,
-      required this.releaseDate});
+      required this.publicationDate});
 }
