@@ -142,6 +142,7 @@ class BookRepository implements AbstractBookRepository {
         }
         return apiBook;
       }
+      return localMapped;
     } catch (e) {
       //TODO logowanie
 

@@ -37,8 +37,6 @@ class BookBloc extends Bloc<BookEvent, BookState> {
   ) async {
     emit(state.copyWith(status: BookStateStatus.loading));
     var books = await _bookQueryService.getAllBooks();
-
-    var book = await _bookQueryService.getBookById(books[1].id);
     emit(state.copyWith(status: BookStateStatus.idle, books: books));
   }
 
