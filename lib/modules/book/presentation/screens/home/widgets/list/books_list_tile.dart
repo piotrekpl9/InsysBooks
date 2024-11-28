@@ -19,9 +19,13 @@ class BooksListTile extends StatelessWidget {
     Widget? leading;
 
     if (book.imagePath == null) {
-      leading = const SizedBox();
+      leading = const SizedBox(
+        width: 50,
+      );
     } else if (book.imagePath!.isEmpty) {
-      leading = const SizedBox();
+      leading = const SizedBox(
+        width: 50,
+      );
     } else {
       leading = CachedNetworkImage(
         imageUrl: book.imagePath!,

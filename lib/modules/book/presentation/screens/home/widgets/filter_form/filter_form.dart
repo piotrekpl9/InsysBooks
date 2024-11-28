@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:insys_books/core/presentation/widgets/form/generic_form_field.dart';
 import 'package:insys_books/modules/book/presentation/bloc/book_bloc.dart';
+import 'package:insys_books/modules/book/presentation/consts/validation_messages.dart';
 import 'package:insys_books/modules/book/presentation/screens/home/widgets/filter_form/cancel_search_button.dart';
 import 'package:insys_books/modules/book/presentation/screens/home/widgets/filter_form/search_button.dart';
 
@@ -16,10 +17,17 @@ class FilterForm extends StatefulWidget {
 class _FilterFormState extends State<FilterForm> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
+
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.filter);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
   }
 
   @override
@@ -37,7 +45,7 @@ class _FilterFormState extends State<FilterForm> {
                   controller: _nameController,
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
-                      return "Field must be filled";
+                      return BookValidationMessages.fieldMustBeFilled;
                     }
                     return null;
                   },
@@ -50,7 +58,7 @@ class _FilterFormState extends State<FilterForm> {
                         onPressed: () async {
                           if (_formKey.currentState?.validate() ?? false) {
                             FocusScope.of(context).unfocus();
-                            BlocProvider.of<BookBloc>(context).add(
+                            context.read<BookBloc>().add(
                                 FilterBookButtonClickedEvent(
                                     _nameController.text));
                           }
@@ -60,7 +68,8 @@ class _FilterFormState extends State<FilterForm> {
                         onPressed: () async {
                           _nameController.text = "";
                           FocusScope.of(context).unfocus();
-                          BlocProvider.of<BookBloc>(context)
+                          context
+                              .read<BookBloc>()
                               .add(const RemoveFilterBookButtonClickedEvent());
                         },
                       ),

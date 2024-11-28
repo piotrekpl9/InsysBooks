@@ -43,9 +43,20 @@ class BookRepository implements AbstractBookRepository {
           )
           .toList();
 
-      var matchingDbBooks = (await _dbDao.getAllBooksByIds(newBooksIds))
-          .map(BookEntityMapper.fromDbEntity)
-          .toList();
+      var unmappedMatchingDbBooks =
+          (await _dbDao.getAllBooksByIds(newBooksIds)).toList();
+      var editedBooksIds = unmappedMatchingDbBooks
+          .where(
+            (element) => element.edited,
+          )
+          .map(
+            (e) => e.id,
+          );
+      newBooks.removeWhere(
+        (element) => editedBooksIds.contains(element.id),
+      );
+      var matchingDbBooks =
+          unmappedMatchingDbBooks.map(BookEntityMapper.fromDbEntity);
       var booksToCache = newBooks
           .where(
             (element) => !matchingDbBooks.contains(element),
@@ -143,14 +154,16 @@ class BookRepository implements AbstractBookRepository {
 
   @override
   Future<bool> updateBook(Book book) async {
-    final dbBook = await _dbDao.getBookById(book.id);
-    if (dbBook == null) {
-      return false;
-    }
-    dbBook.publicationYear = book.publicationYear;
-    dbBook.title = book.title;
-    dbBook.authorFullName = book.authorName;
     try {
+      final dbBook = await _dbDao.getBookById(book.id);
+      if (dbBook == null) {
+        return false;
+      }
+      dbBook.publicationYear = book.publicationYear;
+      dbBook.title = book.title;
+      dbBook.authorFullName = book.authorName;
+      dbBook.edited = true;
+
       await _dbDao.updateBook(dbBook);
       return true;
     } catch (e) {

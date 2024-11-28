@@ -54,6 +54,9 @@ class _BookHomeScreenState extends State<BookHomeScreen> {
               Expanded(
                 child: bottomWidget,
               ),
+              const SizedBox(
+                height: 15,
+              ),
             ],
           );
         },
