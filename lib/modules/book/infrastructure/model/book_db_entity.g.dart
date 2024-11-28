@@ -27,23 +27,28 @@ const BookDbEntitySchema = CollectionSchema(
       name: r'deleted',
       type: IsarType.bool,
     ),
-    r'id': PropertySchema(
+    r'edited': PropertySchema(
       id: 2,
+      name: r'edited',
+      type: IsarType.bool,
+    ),
+    r'id': PropertySchema(
+      id: 3,
       name: r'id',
       type: IsarType.string,
     ),
     r'imagePath': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'imagePath',
       type: IsarType.string,
     ),
     r'publicationYear': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'publicationYear',
       type: IsarType.long,
     ),
     r'title': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'title',
       type: IsarType.string,
     )
@@ -102,10 +107,11 @@ void _bookDbEntitySerialize(
 ) {
   writer.writeString(offsets[0], object.authorFullName);
   writer.writeBool(offsets[1], object.deleted);
-  writer.writeString(offsets[2], object.id);
-  writer.writeString(offsets[3], object.imagePath);
-  writer.writeLong(offsets[4], object.publicationYear);
-  writer.writeString(offsets[5], object.title);
+  writer.writeBool(offsets[2], object.edited);
+  writer.writeString(offsets[3], object.id);
+  writer.writeString(offsets[4], object.imagePath);
+  writer.writeLong(offsets[5], object.publicationYear);
+  writer.writeString(offsets[6], object.title);
 }
 
 BookDbEntity _bookDbEntityDeserialize(
@@ -117,10 +123,11 @@ BookDbEntity _bookDbEntityDeserialize(
   final object = BookDbEntity(
     authorFullName: reader.readString(offsets[0]),
     deleted: reader.readBool(offsets[1]),
-    id: reader.readString(offsets[2]),
-    imagePath: reader.readStringOrNull(offsets[3]),
-    publicationYear: reader.readLongOrNull(offsets[4]),
-    title: reader.readString(offsets[5]),
+    edited: reader.readBool(offsets[2]),
+    id: reader.readString(offsets[3]),
+    imagePath: reader.readStringOrNull(offsets[4]),
+    publicationYear: reader.readLongOrNull(offsets[5]),
+    title: reader.readString(offsets[6]),
   );
   return object;
 }
@@ -137,12 +144,14 @@ P _bookDbEntityDeserializeProp<P>(
     case 1:
       return (reader.readBool(offset)) as P;
     case 2:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 3:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 4:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 5:
+      return (reader.readLongOrNull(offset)) as P;
+    case 6:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -483,6 +492,16 @@ extension BookDbEntityQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'deleted',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterFilterCondition> editedEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'edited',
         value: value,
       ));
     });
@@ -1071,6 +1090,18 @@ extension BookDbEntityQuerySortBy
     });
   }
 
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterSortBy> sortByEdited() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'edited', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterSortBy> sortByEditedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'edited', Sort.desc);
+    });
+  }
+
   QueryBuilder<BookDbEntity, BookDbEntity, QAfterSortBy> sortById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -1147,6 +1178,18 @@ extension BookDbEntityQuerySortThenBy
   QueryBuilder<BookDbEntity, BookDbEntity, QAfterSortBy> thenByDeletedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deleted', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterSortBy> thenByEdited() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'edited', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BookDbEntity, BookDbEntity, QAfterSortBy> thenByEditedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'edited', Sort.desc);
     });
   }
 
@@ -1229,6 +1272,12 @@ extension BookDbEntityQueryWhereDistinct
     });
   }
 
+  QueryBuilder<BookDbEntity, BookDbEntity, QDistinct> distinctByEdited() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'edited');
+    });
+  }
+
   QueryBuilder<BookDbEntity, BookDbEntity, QDistinct> distinctById(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1276,6 +1325,12 @@ extension BookDbEntityQueryProperty
   QueryBuilder<BookDbEntity, bool, QQueryOperations> deletedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deleted');
+    });
+  }
+
+  QueryBuilder<BookDbEntity, bool, QQueryOperations> editedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'edited');
     });
   }
 

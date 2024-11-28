@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:insys_books/core/presentation/consts/app_colors.dart';
+import 'package:insys_books/core/presentation/consts/app_typography_styles.dart';
 
 class BookScaffold extends StatelessWidget {
   final String title;
@@ -17,10 +18,10 @@ class BookScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF4ac0d1),
+        backgroundColor: AppColors.primary,
         title: Text(
           title,
-          style: TextStyle(fontSize: 25, color: Colors.white),
+          style: AppTypographyStyles.screenTitle,
         ),
         centerTitle: true,
       ),

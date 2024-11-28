@@ -67,13 +67,14 @@ class _EditBookFormState extends State<EditBookForm> {
           ElevatedButton(
             onPressed: () async {
               if (_formKey.currentState?.validate() ?? false) {
-                BlocProvider.of<BookBloc>(context).add(
-                  BookEditingFormSubmittedEvent(
-                    author: _authorController.text,
-                    title: _titleController.text,
-                    publicationYear: int.parse(_publicationYearController.text),
-                  ),
-                );
+                context.read<BookBloc>().add(
+                      BookEditingFormSubmittedEvent(
+                        author: _authorController.text,
+                        title: _titleController.text,
+                        publicationYear:
+                            int.parse(_publicationYearController.text),
+                      ),
+                    );
               }
             },
             child: const Text("Wypisz ksiąki"),

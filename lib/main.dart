@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:insys_books/core/di/di_container.dart';
+import 'package:insys_books/core/presentation/consts/app_colors.dart';
 import 'package:insys_books/modules/book/application/services/abstraction/abstract_book_command_service.dart';
 import 'package:insys_books/modules/book/application/services/abstraction/abstract_book_query_service.dart';
 import 'package:insys_books/modules/book/presentation/bloc/book_bloc.dart';
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         appBarTheme:
             const AppBarTheme(systemOverlayStyle: SystemUiOverlayStyle.light),
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4ac0d1)),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
         useMaterial3: true,
       ),
       routerConfig: _router,

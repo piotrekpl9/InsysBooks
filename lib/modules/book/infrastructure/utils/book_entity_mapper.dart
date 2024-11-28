@@ -12,13 +12,14 @@ class BookEntityMapper {
     );
   }
 
-  static BookDbEntity toDbEntity(Book book, {bool? deleted}) {
+  static BookDbEntity toDbEntity(Book book, {bool? deleted, bool? edited}) {
     return BookDbEntity(
         id: book.id,
         title: book.title,
         authorFullName: book.authorName,
         publicationYear: book.publicationYear,
         imagePath: book.imagePath,
-        deleted: deleted ?? false);
+        deleted: deleted ?? false,
+        edited: edited ?? false);
   }
 }

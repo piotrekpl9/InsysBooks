@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:insys_books/core/presentation/consts/app_strings.dart';
 import 'package:insys_books/modules/book/presentation/bloc/book_bloc.dart';
 import 'package:insys_books/modules/book/presentation/screens/edit_book/widgets/form/eidt_book_form.dart';
 
@@ -18,10 +19,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
     return PopScope(
       canPop: true,
       onPopInvoked: (didPop) {
-        //TODO sprawdź czy lepiej uywać BlocProvider.of czy context.read
-        BlocProvider.of<BookBloc>(context).add(
-          const BookEditingScreenLeavedEvent(),
-        );
+        context.read<BookBloc>().add(
+              const BookEditingScreenLeavedEvent(),
+            );
       },
       child: BlocListener<BookBloc, BookState>(
         listener: (context, state) {
@@ -30,13 +30,16 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 const SnackBar(content: Text("Book updated successfuly!")));
             context.pop();
           }
+          if (state.status == BookStateStatus.actionFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text(AppStrings.actionFailureMessage)));
+          }
         },
         child: Scaffold(
           appBar: AppBar(
             title: const Text("Edit Book"),
           ),
           body: BlocBuilder<BookBloc, BookState>(
-            bloc: BlocProvider.of<BookBloc>(context),
             builder: (context, state) {
               if (state.status == BookStateStatus.bookEditing) {
                 return EditBookForm(book: state.editedBook!);

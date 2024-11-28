@@ -10,13 +10,11 @@ class BookCommandService implements AbstractBookCommandService {
   BookCommandService({required AbstractBookRepository bookRepository})
       : _bookRepository = bookRepository;
 
-  //TODO add Either to Future
-
   @override
-  Future createBook(CreateBookDto createBookDto) async {
+  Future<bool> createBook(CreateBookDto createBookDto) async {
     var existingBook = await _bookRepository.bookExistsById(createBookDto.id);
     if (existingBook) {
-      return;
+      return false;
     }
     var book = Book(
         id: createBookDto.id,
@@ -24,23 +22,23 @@ class BookCommandService implements AbstractBookCommandService {
         authorName: createBookDto.authorName,
         publicationYear: createBookDto.publicationDate,
         imagePath: "");
-    await _bookRepository.createBook(book);
+    return await _bookRepository.createBook(book);
   }
 
   @override
-  Future deleteBook(String id) async {
+  Future<bool> deleteBook(String id) async {
     var existingBook = await _bookRepository.bookExistsById(id);
     if (!existingBook) {
-      return;
+      return false;
     }
-    await _bookRepository.deleteBook(id);
+    return await _bookRepository.deleteBook(id);
   }
 
   @override
-  Future updateBook(String id, UpdateBookDto updateBookDto) async {
+  Future<bool> updateBook(String id, UpdateBookDto updateBookDto) async {
     var existingBook = await _bookRepository.bookExistsById(id);
-    if (existingBook) {
-      return;
+    if (!existingBook) {
+      return false;
     }
     var bookToUpdate = Book(
         id: id,
@@ -48,6 +46,6 @@ class BookCommandService implements AbstractBookCommandService {
         authorName: updateBookDto.authorName,
         publicationYear: updateBookDto.publicationYear,
         imagePath: "");
-    await _bookRepository.updateBook(bookToUpdate);
+    return await _bookRepository.updateBook(bookToUpdate);
   }
 }

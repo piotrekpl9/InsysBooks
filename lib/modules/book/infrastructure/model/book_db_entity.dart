@@ -14,6 +14,7 @@ class BookDbEntity {
   int? publicationYear;
   final String? imagePath;
   bool deleted;
+  bool edited;
 
   BookDbEntity({
     required this.id,
@@ -22,5 +23,6 @@ class BookDbEntity {
     required this.publicationYear,
     required this.imagePath,
     required this.deleted,
+    required this.edited,
   });
 }

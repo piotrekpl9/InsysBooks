@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:insys_books/core/presentation/consts/app_strings.dart';
 
 import '../../bloc/book_bloc.dart';
 
@@ -35,10 +36,14 @@ class _AddBookScreenState extends State<AddBookScreen> {
               const SnackBar(content: Text("Successfuly added book")));
           context.pop();
         }
+        if (state.status == BookStateStatus.actionFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text(AppStrings.actionFailureMessage)));
+        }
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Add book"),
+          title: const Text("Add book"),
         ),
         body: Form(
           key: _formKey,
@@ -79,14 +84,14 @@ class _AddBookScreenState extends State<AddBookScreen> {
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState?.validate() ?? false) {
-                    BlocProvider.of<BookBloc>(context).add(
-                      CreateBookButtonClickedEvent(
-                        author: _authorController.text,
-                        title: _titleController.text,
-                        publicationYear:
-                            int.parse(_publicationYearController.text),
-                      ),
-                    );
+                    context.read<BookBloc>().add(
+                          CreateBookButtonClickedEvent(
+                            author: _authorController.text,
+                            title: _titleController.text,
+                            publicationYear:
+                                int.parse(_publicationYearController.text),
+                          ),
+                        );
                   }
                 },
                 child: const Text("Wypisz ksiąki"),

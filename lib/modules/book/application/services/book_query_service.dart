@@ -10,7 +10,6 @@ class BookQueryService implements AbstractBookQueryService {
 
   @override
   Future<List<Book>> getBooksByName(String name) async {
-    //TODO moze ustawiać deleted = false kiedy pobieramy ksiąki po nazwie????
     return await _bookRepository.getBooksByName(name);
   }
 

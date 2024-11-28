@@ -16,110 +16,148 @@ class BookRepository implements AbstractBookRepository {
 
   @override
   Future<List<Book>> getBooksByName(String name) async {
-    var unmappedLocalBooks = (await _dbDao.getBooksByName(name)).toList();
+    try {
+      var unmappedLocalBooks = (await _dbDao.getBooksByName(name)).toList();
 
-    final apiBooks = await _webApiDao.getBooksByName(name);
-    apiBooks.removeWhere(
-      (element) => unmappedLocalBooks.any(
-        (localElement) => localElement.id == element.id && localElement.deleted,
-      ),
-    );
-    unmappedLocalBooks.removeWhere(
-      (element) => element.deleted,
-    );
+      final apiBooks = await _webApiDao.getBooksByName(name);
+      apiBooks.removeWhere(
+        (element) => unmappedLocalBooks.any(
+          (localElement) =>
+              localElement.id == element.id &&
+              (localElement.deleted || localElement.edited),
+        ),
+      );
+      unmappedLocalBooks.removeWhere(
+        (element) => element.deleted,
+      );
 
-    var localbooks = unmappedLocalBooks.map(BookEntityMapper.fromDbEntity);
-    var newBooks = apiBooks
-        .where(
-          (element) => !localbooks.contains(element),
-        )
-        .toList();
-    var newBooksIds = newBooks
-        .map(
-          (e) => e.id,
-        )
-        .toList();
+      var localbooks = unmappedLocalBooks.map(BookEntityMapper.fromDbEntity);
+      var newBooks = apiBooks
+          .where(
+            (element) => !localbooks.contains(element),
+          )
+          .toList();
+      var newBooksIds = newBooks
+          .map(
+            (e) => e.id,
+          )
+          .toList();
 
-    var matchingDbBooks = (await _dbDao.getAllBooksByIds(newBooksIds))
-        .map(BookEntityMapper.fromDbEntity)
-        .toList();
-    var booksToCache = newBooks
-        .where(
-          (element) => !matchingDbBooks.contains(element),
-        )
-        .toList();
+      var matchingDbBooks = (await _dbDao.getAllBooksByIds(newBooksIds))
+          .map(BookEntityMapper.fromDbEntity)
+          .toList();
+      var booksToCache = newBooks
+          .where(
+            (element) => !matchingDbBooks.contains(element),
+          )
+          .toList();
 
-    if (booksToCache.isNotEmpty) {
-      await _dbDao
-          .insertList(booksToCache.map(BookEntityMapper.toDbEntity).toList());
+      if (booksToCache.isNotEmpty) {
+        await _dbDao
+            .insertList(booksToCache.map(BookEntityMapper.toDbEntity).toList());
+      }
+      var res = [...localbooks, ...newBooks];
+      return res;
+    } catch (e) {
+      //TODO logowanie
+      return [];
     }
-    var res = [...localbooks, ...newBooks];
-    return res;
   }
 
   @override
-  Future createBook(Book book) async {
-    await _dbDao.insertOrUpdateBook(BookEntityMapper.toDbEntity(book));
+  Future<bool> createBook(Book book) async {
+    try {
+      await _dbDao.insertOrUpdateBook(BookEntityMapper.toDbEntity(book));
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   @override
   Future<List<Book>> getAllBooks({int? limit}) async {
-    var unmappedLocalBooks = (await _dbDao.getAllBooks(limit: limit)).toList();
+    try {
+      var unmappedLocalBooks =
+          (await _dbDao.getAllBooks(limit: limit)).toList();
 
-    var apiBooks = await _webApiDao.getAllBooks(limit ?? 10);
+      var apiBooks = await _webApiDao.getAllBooks(limit ?? 10);
 
-    apiBooks.removeWhere(
-      (element) => unmappedLocalBooks.any(
-        (localElement) => localElement.id == element.id && localElement.deleted,
-      ),
-    );
-    unmappedLocalBooks.removeWhere(
-      (element) => element.deleted,
-    );
+      apiBooks.removeWhere(
+        (element) => unmappedLocalBooks.any(
+          (localElement) =>
+              localElement.id == element.id &&
+              (localElement.deleted || localElement.edited),
+        ),
+      );
+      unmappedLocalBooks.removeWhere(
+        (element) => element.deleted,
+      );
 
-    var localbooks = unmappedLocalBooks.map(BookEntityMapper.fromDbEntity);
+      var localbooks = unmappedLocalBooks.map(BookEntityMapper.fromDbEntity);
 
-    var newBooks = apiBooks
-        .where(
-          (element) => !localbooks.contains(element),
-        )
-        .toList();
+      var newBooks = apiBooks
+          .where(
+            (element) => !localbooks.contains(element),
+          )
+          .toList();
 
-    if (newBooks.isNotEmpty) {
-      await _dbDao
-          .insertList(newBooks.map(BookEntityMapper.toDbEntity).toList());
+      if (newBooks.isNotEmpty) {
+        await _dbDao
+            .insertList(newBooks.map(BookEntityMapper.toDbEntity).toList());
+      }
+
+      var res = [...localbooks, ...newBooks];
+      return res;
+    } catch (e) {
+      //TODO logowanie
+      return [];
     }
-
-    var res = [...localbooks, ...newBooks];
-    return res;
   }
 
   @override
   Future<Book?> getBookById(String id) async {
     //TODO add caching
-    var localBook = await _dbDao.getBookById(id);
-    if (localBook == null || localBook.deleted) {
+    try {
+      var localBook = await _dbDao.getBookById(id);
+      if (localBook == null || localBook.deleted) {
+        return null;
+      }
+      return BookEntityMapper.fromDbEntity(localBook);
+    } catch (e) {
+      //TODO logowanie
+
       return null;
     }
-    return BookEntityMapper.fromDbEntity(localBook);
   }
 
   @override
-  Future deleteBook(String id) async {
-    await _dbDao.deleteById(id);
+  Future<bool> deleteBook(String id) async {
+    try {
+      await _dbDao.deleteById(id);
+      return true;
+    } catch (e) {
+      //TODO logowanie
+      return false;
+    }
   }
 
   @override
-  Future updateBook(Book book) async {
+  Future<bool> updateBook(Book book) async {
     final dbBook = await _dbDao.getBookById(book.id);
     if (dbBook == null) {
-      return;
+      return false;
     }
     dbBook.publicationYear = book.publicationYear;
     dbBook.title = book.title;
     dbBook.authorFullName = book.authorName;
+    try {
+      await _dbDao.updateBook(dbBook);
+      return true;
+    } catch (e) {
+      //TODO logowanie
 
-    await _dbDao.updateBook(dbBook);
+      return false;
+    }
   }
 
   @override

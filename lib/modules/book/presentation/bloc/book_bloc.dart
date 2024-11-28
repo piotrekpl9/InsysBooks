@@ -74,7 +74,13 @@ class BookBloc extends Bloc<BookEvent, BookState> {
 
     //TODO add Either
 
-    await _bookCommandService.createBook(createBookDto);
+    var commandResult = await _bookCommandService.createBook(createBookDto);
+    if (!commandResult) {
+      emit(state.copyWith(status: BookStateStatus.actionFailure));
+      emit(state.copyWith(status: BookStateStatus.idle));
+      return;
+    }
+
     var book = await _bookQueryService.getBookById(createBookDto.id);
     if (book == null) {
       emit(state.copyWith(status: BookStateStatus.actionFailure));
@@ -91,7 +97,12 @@ class BookBloc extends Bloc<BookEvent, BookState> {
     DeleteBookButtonClickedEvent event,
     Emitter<BookState> emit,
   ) async {
-    await _bookCommandService.deleteBook(event.id);
+    var commandResult = await _bookCommandService.deleteBook(event.id);
+    if (!commandResult) {
+      emit(state.copyWith(status: BookStateStatus.actionFailure));
+      emit(state.copyWith(status: BookStateStatus.idle));
+      return;
+    }
     var book = await _bookQueryService.getBookById(event.id);
     if (book != null) {
       emit(state.copyWith(status: BookStateStatus.actionFailure));
@@ -129,7 +140,13 @@ class BookBloc extends Bloc<BookEvent, BookState> {
       //TODO Implement failure
       return;
     }
-    await _bookCommandService.updateBook(editedBook.id, updateBookDto);
+    var commandResult =
+        await _bookCommandService.updateBook(editedBook.id, updateBookDto);
+    if (!commandResult) {
+      emit(state.copyWith(status: BookStateStatus.actionFailure));
+      emit(state.copyWith(status: BookStateStatus.idle));
+      return;
+    }
     var book = await _bookQueryService.getBookById(state.editedBook!.id);
     if (book == null) {
       emit(state.copyWith(status: BookStateStatus.actionFailure));
