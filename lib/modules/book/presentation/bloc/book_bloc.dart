@@ -37,6 +37,8 @@ class BookBloc extends Bloc<BookEvent, BookState> {
   ) async {
     emit(state.copyWith(status: BookStateStatus.loading));
     var books = await _bookQueryService.getAllBooks();
+
+    var book = await _bookQueryService.getBookById(books[1].id);
     emit(state.copyWith(status: BookStateStatus.idle, books: books));
   }
 
@@ -70,9 +72,9 @@ class BookBloc extends Bloc<BookEvent, BookState> {
         id: const Uuid().v4(),
         title: event.title,
         authorName: event.author,
-        publicationDate: event.publicationYear);
+        publicationYear: event.publicationYear);
 
-    //TODO add Either
+    //TODO add Either or some other mechainsm to check if command succeded
 
     var commandResult = await _bookCommandService.createBook(createBookDto);
     if (!commandResult) {
@@ -134,10 +136,9 @@ class BookBloc extends Bloc<BookEvent, BookState> {
         authorName: event.author,
         publicationYear: event.publicationYear);
 
-    //TODO add Either
     final editedBook = state.editedBook;
     if (editedBook == null) {
-      //TODO Implement failure
+      //TODO log failure
       return;
     }
     var commandResult =

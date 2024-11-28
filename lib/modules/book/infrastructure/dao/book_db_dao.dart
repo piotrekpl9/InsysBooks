@@ -59,14 +59,9 @@ class BookDbDao implements AbstractBookDbDao {
 
   @override
   Future<void> insertList(List<BookDbEntity> books) async {
-    try {
-      await _localDb.isar.writeTxn(() async {
-        await _localDb.isar.bookDbEntitys.putAllById(books);
-      });
-    } catch (e) {
-      //TODO poprawić
-      var x = 2;
-    }
+    await _localDb.isar.writeTxn(() async {
+      await _localDb.isar.bookDbEntitys.putAllById(books);
+    });
   }
 
   @override

@@ -29,15 +29,8 @@ class BookWebApiDao implements AbstractBookWebApiDao {
         //TODO add loggs
         return [];
       }
-      // try {
-      //   return Book.fromJson(data as Map<String, dynamic>);
-      // } catch (error) {
-      //   //TODO add loggs
-      //   return null;
-      // }
     } else {
       //TODO add loggs
-
       return [];
     }
   }
@@ -65,5 +58,22 @@ class BookWebApiDao implements AbstractBookWebApiDao {
       }
     }
     return [];
+  }
+
+  @override
+  Future<Book?> getBookById(String id) async {
+    try {
+      var response = await _httpClient.dio.get("/volumes/$id");
+      if (response.statusCode == 200) {
+        final data = response.data;
+        return Book.fromJson(data as Map<String, dynamic>);
+      } else {
+        //TODO add loggs
+        return null;
+      }
+    } catch (e) {
+      //TODO add loggs
+      return null;
+    }
   }
 }

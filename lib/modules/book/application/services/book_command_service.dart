@@ -20,7 +20,7 @@ class BookCommandService implements AbstractBookCommandService {
         id: createBookDto.id,
         title: createBookDto.title,
         authorName: createBookDto.authorName,
-        publicationYear: createBookDto.publicationDate,
+        publicationYear: createBookDto.publicationYear,
         imagePath: "");
     return await _bookRepository.createBook(book);
   }

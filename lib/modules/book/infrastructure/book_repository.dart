@@ -20,47 +20,33 @@ class BookRepository implements AbstractBookRepository {
       var unmappedLocalBooks = (await _dbDao.getBooksByName(name)).toList();
 
       final apiBooks = await _webApiDao.getBooksByName(name);
-      apiBooks.removeWhere(
-        (element) => unmappedLocalBooks.any(
-          (localElement) =>
+
+      var newBooks = apiBooks
+          .where((element) => !unmappedLocalBooks.any((localElement) =>
               localElement.id == element.id &&
-              (localElement.deleted || localElement.edited),
-        ),
-      );
-      unmappedLocalBooks.removeWhere(
-        (element) => element.deleted,
-      );
+              (localElement.deleted || localElement.edited)))
+          .toList();
+
+      unmappedLocalBooks.removeWhere((element) => element.deleted);
 
       var localbooks = unmappedLocalBooks.map(BookEntityMapper.fromDbEntity);
-      var newBooks = apiBooks
-          .where(
-            (element) => !localbooks.contains(element),
-          )
-          .toList();
-      var newBooksIds = newBooks
-          .map(
-            (e) => e.id,
-          )
-          .toList();
-
+      var newBooksIds = newBooks.map((e) => e.id).toList();
       var unmappedMatchingDbBooks =
           (await _dbDao.getAllBooksByIds(newBooksIds)).toList();
+
       var editedBooksIds = unmappedMatchingDbBooks
-          .where(
-            (element) => element.edited,
-          )
-          .map(
-            (e) => e.id,
-          );
+          .where((element) => element.edited)
+          .map((e) => e.id)
+          .toSet();
+
       newBooks.removeWhere(
         (element) => editedBooksIds.contains(element.id),
       );
+
       var matchingDbBooks =
-          unmappedMatchingDbBooks.map(BookEntityMapper.fromDbEntity);
+          unmappedMatchingDbBooks.map(BookEntityMapper.fromDbEntity).toSet();
       var booksToCache = newBooks
-          .where(
-            (element) => !matchingDbBooks.contains(element),
-          )
+          .where((element) => !matchingDbBooks.contains(element))
           .toList();
 
       if (booksToCache.isNotEmpty) {
@@ -128,12 +114,34 @@ class BookRepository implements AbstractBookRepository {
   @override
   Future<Book?> getBookById(String id) async {
     //TODO add caching
+
     try {
-      var localBook = await _dbDao.getBookById(id);
-      if (localBook == null || localBook.deleted) {
+      var apiBook = await _webApiDao.getBookById(id);
+      final localBook = await _dbDao.getBookById(id);
+      if (localBook != null && localBook.deleted) {
         return null;
       }
-      return BookEntityMapper.fromDbEntity(localBook);
+      if (localBook == null) {
+        if (apiBook != null) {
+          await _dbDao.insertOrUpdateBook(BookEntityMapper.toDbEntity(apiBook));
+          return apiBook;
+        }
+        return null;
+      }
+
+      var localMapped = BookEntityMapper.fromDbEntity(localBook);
+      if (localBook.edited) {
+        return localMapped;
+      }
+      if (apiBook != null) {
+        if (localMapped != apiBook) {
+          localBook.publicationYear = apiBook.publicationYear;
+          localBook.title = apiBook.title;
+          localBook.authorFullName = apiBook.authorName;
+          await _dbDao.updateBook(localBook);
+        }
+        return apiBook;
+      }
     } catch (e) {
       //TODO logowanie
 

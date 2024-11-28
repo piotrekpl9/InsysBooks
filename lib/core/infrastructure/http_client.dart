@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:insys_books/core/consts/app_consts.dart';
+import 'package:insys_books/core/common/consts/app_consts.dart';
 
 class HttpClient {
   final Dio dio;
