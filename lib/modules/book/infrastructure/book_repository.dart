@@ -113,8 +113,6 @@ class BookRepository implements AbstractBookRepository {
 
   @override
   Future<Book?> getBookById(String id) async {
-    //TODO add caching
-
     try {
       var apiBook = await _webApiDao.getBookById(id);
       final localBook = await _dbDao.getBookById(id);
