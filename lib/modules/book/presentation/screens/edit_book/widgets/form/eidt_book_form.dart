@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:insys_books/modules/book/domain/book.dart';
-import 'package:insys_books/modules/book/presentation/bloc/home/book_bloc.dart';
+import 'package:insys_books/modules/book/presentation/bloc/book_bloc.dart';
 
 class EditBookForm extends StatefulWidget {
   final Book book;

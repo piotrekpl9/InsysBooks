@@ -15,6 +15,10 @@ final class FilterBookButtonClickedEvent extends BookEvent {
   const FilterBookButtonClickedEvent(this.bookTitle);
 }
 
+final class RemoveFilterBookButtonClickedEvent extends BookEvent {
+  const RemoveFilterBookButtonClickedEvent();
+}
+
 final class CreateBookButtonClickedEvent extends BookEvent {
   final String title;
   final String author;

@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:insys_books/core/di/di_container.dart';
 import 'package:insys_books/modules/book/application/services/abstraction/abstract_book_command_service.dart';
 import 'package:insys_books/modules/book/application/services/abstraction/abstract_book_query_service.dart';
-import 'package:insys_books/modules/book/presentation/bloc/home/book_bloc.dart';
-import 'package:insys_books/modules/book/presentation/screens/add_book_screen.dart';
-import 'package:insys_books/modules/book/presentation/screens/book_home_screen.dart';
-import 'package:insys_books/modules/book/presentation/screens/edit_book_screen.dart';
+import 'package:insys_books/modules/book/presentation/bloc/book_bloc.dart';
+import 'package:insys_books/modules/book/presentation/screens/add_book/add_book_screen.dart';
+import 'package:insys_books/modules/book/presentation/screens/home/book_home_screen.dart';
+import 'package:insys_books/modules/book/presentation/screens/edit_book/edit_book_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,8 +25,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        appBarTheme:
+            const AppBarTheme(systemOverlayStyle: SystemUiOverlayStyle.light),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4ac0d1)),
         useMaterial3: true,
       ),
       routerConfig: _router,

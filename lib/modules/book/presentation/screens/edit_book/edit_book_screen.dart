@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:insys_books/modules/book/presentation/bloc/home/book_bloc.dart';
-import 'package:insys_books/modules/book/presentation/widgets/eidt_book_form.dart';
+import 'package:insys_books/modules/book/presentation/bloc/book_bloc.dart';
+import 'package:insys_books/modules/book/presentation/screens/edit_book/widgets/form/eidt_book_form.dart';
 
 class EditBookScreen extends StatefulWidget {
   static String path = "/edit";

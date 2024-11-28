@@ -14,6 +14,10 @@ class BookCommandService implements AbstractBookCommandService {
 
   @override
   Future createBook(CreateBookDto createBookDto) async {
+    var existingBook = await _bookRepository.bookExistsById(createBookDto.id);
+    if (existingBook) {
+      return;
+    }
     var book = Book(
         id: createBookDto.id,
         title: createBookDto.title,
@@ -25,13 +29,17 @@ class BookCommandService implements AbstractBookCommandService {
 
   @override
   Future deleteBook(String id) async {
+    var existingBook = await _bookRepository.bookExistsById(id);
+    if (!existingBook) {
+      return;
+    }
     await _bookRepository.deleteBook(id);
   }
 
   @override
   Future updateBook(String id, UpdateBookDto updateBookDto) async {
-    var existingBook = await _bookRepository.getBookById(id);
-    if (existingBook == null) {
+    var existingBook = await _bookRepository.bookExistsById(id);
+    if (existingBook) {
       return;
     }
     var bookToUpdate = Book(

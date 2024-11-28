@@ -13,13 +13,13 @@ enum BookStateStatus {
 class BookState extends Equatable {
   final BookStateStatus status;
   final List<Book> books;
-  final String filter;
+  final String? filter;
   final Book? editedBook;
 
   const BookState({
     this.status = BookStateStatus.init,
     this.books = const [],
-    this.filter = "",
+    this.filter,
     this.editedBook,
   });
 
@@ -47,6 +47,19 @@ class BookState extends Equatable {
         books: books ?? this.books,
         filter: filter ?? this.filter,
         editedBook: null);
+  }
+
+  BookState copyWithResetedFilter({
+    BookStateStatus? status,
+    List<Book>? books,
+    String? filter,
+  }) {
+    return BookState(
+      status: status ?? this.status,
+      books: books ?? this.books,
+      filter: null,
+      editedBook: editedBook ?? this.editedBook,
+    );
   }
 
   @override

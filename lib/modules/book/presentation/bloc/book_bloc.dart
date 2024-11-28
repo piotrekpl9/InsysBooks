@@ -21,6 +21,7 @@ class BookBloc extends Bloc<BookEvent, BookState> {
         super(const BookState()) {
     on<BookBlocStarted>(_onBookBlocStarted);
     on<FilterBookButtonClickedEvent>(_onFilterBookClicked);
+    on<RemoveFilterBookButtonClickedEvent>(_onRemoveFilterClicked);
     on<CreateBookButtonClickedEvent>(_onCreateBookClicked);
     on<DeleteBookButtonClickedEvent>(_onDeleteBookClicked);
     on<EditBookButtonClickedEvent>(_onEditBookClicked);
@@ -43,9 +44,22 @@ class BookBloc extends Bloc<BookEvent, BookState> {
     FilterBookButtonClickedEvent event,
     Emitter<BookState> emit,
   ) async {
-    emit(state.copyWith(status: BookStateStatus.loading));
+    emit(state.copyWith(
+        status: BookStateStatus.loading, filter: event.bookTitle));
     var books = await _bookQueryService.getBooksByName(event.bookTitle);
     emit(state.copyWith(status: BookStateStatus.idle, books: books));
+  }
+
+  Future<void> _onRemoveFilterClicked(
+    RemoveFilterBookButtonClickedEvent event,
+    Emitter<BookState> emit,
+  ) async {
+    emit(state.copyWith(
+      status: BookStateStatus.loading,
+    ));
+    var books = await _bookQueryService.getAllBooks();
+    emit(state.copyWithResetedFilter(
+        status: BookStateStatus.idle, books: books));
   }
 
   Future<void> _onCreateBookClicked(
